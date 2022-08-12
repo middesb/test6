@@ -1,5 +1,5 @@
-name: Pipeline1
-description: Pipeline
+name: pipeline4
+description: Pipeline4
 steps:
   - step: trigger
     stepName: Github-SCM
