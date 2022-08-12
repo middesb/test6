@@ -1,0 +1,69 @@
+name: Pipeline1
+description: Pipeline
+steps:
+  - step: trigger
+    stepName: Github-SCM
+    configuration:
+      toolName: Github-SCM
+      toolType: Github
+      repoName: middetest001
+      branchName: main
+      triggerType: source-control-management
+  - step: externalPipeline
+    stepName: dummy_test
+    configuration:
+      toolName: jenkins
+      toolType: Jenkins
+      jobs:
+        - name: dummy_test
+          parameters: {}
+      environment: Stage
+      modifyParameterOnRun: false
+  - step: test
+    stepName: Automated Test
+    configuration:
+      toolName: jenkins
+      toolType: Jenkins
+      testSetup:
+        - jobs:
+            - name: dummy_test
+              index: 0
+              parameters: {}
+              continueOnFailure: false
+              testReportFormat: JUnit
+              testReportLocation: tmp
+          name: Automated junit test
+          toolName: jenkins
+          toolType: Jenkins
+      overrideQualityGate: true
+      users:
+        - midde.b@releaseiq.io
+  - step: manualTest
+    stepName: Manual Test
+    configuration:
+      testSetup:
+        - name: Manual Testing
+          continueOnFailure: false
+          percentageThreshold: 100
+          testReportLocations: []
+          testReportFormat: ReleaseIQ
+      overrideQualityGate: true
+      users:
+        - midde.b@releaseiq.io
+  - step: approval
+    stepName: Approval by midde.b@releaseiq.io
+    configuration:
+      users:
+        - midde.b@releaseiq.io
+  - step: deploy
+    stepName: Deploy To Prod
+    configuration:
+      toolName: jenkins
+      toolType: Jenkins
+      jobs:
+        - name: Dummy_test2
+          parameters: {}
+      environment: Prod
+      lockEnabled: false
+      modifyParameterOnRun: false
+group: Demo
